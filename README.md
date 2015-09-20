@@ -28,14 +28,14 @@ The audio is re-encoded with Opus at 48000Hz/128K. This is actually very good qu
 
 #### mkvmerge
 
-Part of the `mkvtoolnix` package usually. Used to change the video framerate.
+Part of the [`mkvtoolnix`](https://www.bunkus.org/videotools/mkvtoolnix/) package usually. Used to change the video framerate.
 
 #### ffmpeg and ffprobe
 
-Both usually come with `ffmpeg`. Uses `ffprobe` to get the framerate of the input file and `ffmpeg` to convert the audio while maintaining pitch.
+Both usually come with [`ffmpeg`](https://www.ffmpeg.org/). Uses `ffprobe` to get the framerate of the input file and `ffmpeg` to convert the audio while maintaining pitch.
 
 ### Included
 
 #### srtshift
 
-Part of `mplayer-tools`. I couldn't even find a package for this in Arch! So since it's a simple Perl script it's just included. Used to convert the frame rate for SRT subtitles.
+Part of [`mplayer-tools`](http://mplayer-tools.sourceforge.net/). I couldn't even find a package for this in Arch! So since it's a simple Perl script it's just included. Used to convert the frame rate for SRT subtitles.
