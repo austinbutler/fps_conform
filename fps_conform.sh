@@ -8,7 +8,7 @@ FPS="$1"
 
 #Setting FPS for mkvmerge
 if [[ "$FPS" != "23.976" && "$FPS" != "24" && "$FPS" != "25" ]]; then
-  echo "[ERROR] Please provide the framerate to convert to! Valid options: 23.976, 24, 25"
+  echo -e "[ERROR] Please provide the framerate to convert to!\n       Valid options: 23.976, 24, 25"
   exit 1
 fi
 
@@ -20,17 +20,28 @@ OUTPUT_AUD="$DIR/temp/audio_$FPS"
 mkdir -p "$OUTPUT_VID"
 mkdir -p "$OUTPUT_AUD"
 
-#Converting video to desired FPS using mkvmerge
+#Folder for finished conversion
+CONVERTED="$DIR/converted"
+
+mkdir -p "$CONVERTED"
+
+#Convert video to desired FPS using mkvmerge
 function CONVERT_VID () {
   mkvmerge -o "$OUTPUT_VID/$1" --default-duration "0:$2" -d "0" -A -S -T "$1" --track-order "0:0"
 }
 
+#Convert audio to desired length, compensating pitch
 function CONVERT_AUD () {
   ffmpeg -i "$1" -c:a libopus -b:a 128k -filter:a "atempo=$2" -vn "$OUTPUT_AUD/$1"
 }
 
+#Convert subtitles to desired length
+function CONVERT_SUB () {
+  :
+}
+
 function MUX () {
-  ffmpeg -i "$OUTPUT_VID/$1" -i "$OUTPUT_AUD/$1" -c copy -map 0:v:0 -map 1:a:0 "$DIR/converted_$1"
+  ffmpeg -i "$OUTPUT_VID/$1" -i "$OUTPUT_AUD/$1" -c copy -map 0:v:0 -map 1:a:0 "$CONVERTED/$1"
 }
 
 #Loop to convert all files with mkv extension in current directory
@@ -39,10 +50,10 @@ for INPUT_FILE in *.mkv; do
   FPS_IN=$(ffprobe "$INPUT_FILE" -v 0 -select_streams v -print_format flat -show_entries stream=r_frame_rate | cut -d"=" -f2 | tr -d '"')
 
   #Error for same input and output FPS
-  ERR_NO_ACTION="[NOTICE] Taking no action on $INPUT_FILE, FPS would be unchanged or is unsupported"
+  ERR_NO_ACTION="[NOTICE] Taking no action on $INPUT_FILE\n        FPS would be unchanged or is unsupported"
 
   #Error for unsupported framerate
-  ERR_UNSUPPORTED="[ERROR] Framerate not supported: $FPS_IN\nFile: $INPUT_FILE"
+  ERR_UNSUPPORTED="[ERROR] Framerate not supported: $FPS_IN\n       File: $INPUT_FILE"
 
   #By default take action
   PASS="false"
@@ -54,7 +65,7 @@ for INPUT_FILE in *.mkv; do
       FPS_OUT="25p"
       TEMPO="1.042709376"
     else
-      echo "$ERR_NO_ACTION"
+      echo -e "$ERR_NO_ACTION"
       PASS="true"
     fi
   elif [[ "$FPS_IN" == "24/1" ]]; then
@@ -63,7 +74,7 @@ for INPUT_FILE in *.mkv; do
       FPS_OUT="25p"
       TEMPO="1.041666667"
     else
-      echo "$ERR_NO_ACTION"
+      echo -e "$ERR_NO_ACTION"
       PASS="true"
     fi
   elif [[ "$FPS_IN" == "25/1" ]]; then
@@ -75,7 +86,7 @@ for INPUT_FILE in *.mkv; do
       FPS_OUT="24000/1001p"
       TEMPO="0.95904"
     else
-      echo "$ERR_NO_ACTION"
+      echo -e "$ERR_NO_ACTION"
       PASS="true"
     fi
   else
@@ -93,5 +104,5 @@ for INPUT_FILE in *.mkv; do
   fi
 done
 
-rm -rf "$OUTPUT_VID"
-rm -rf "$OUTPUT_AUD"
+#Clean up
+rm -rf "$DIR/temp"
