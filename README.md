@@ -4,6 +4,10 @@
 
 Bash script to conform between NTSC and PAL.
 
+## Development Status
+
+Converting audio and video works. Working on adding SRT conversion as well.
+
 ## What's conforming?
 
 Conforming being defined as either speeding up or slowing down the duration to match the desired output framerate. This is generally how films and TV shows are converted between standards.
@@ -39,3 +43,11 @@ Both usually come with [`ffmpeg`](https://www.ffmpeg.org/). Uses `ffprobe` to ge
 #### srtshift
 
 Part of [`mplayer-tools`](http://mplayer-tools.sourceforge.net/). I couldn't even find a package for this in Arch! So since it's a simple Perl script it's just included. Used to convert the frame rate for SRT subtitles.
+
+## Running
+
+Put this script and its files in the same folder as the MKVs you want to convert. Then run it with the desired FPS. It will not overwite your originals. Valid framerates are 23.976, 24, and 25.
+
+```
+bash fps_conform.sh 23.976
+```
