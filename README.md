@@ -4,13 +4,9 @@
 
 Bash script to conform between NTSC and PAL.
 
-## Development Status
-
-Converting audio and video works. Working on adding SRT conversion as well.
-
 ## What's conforming?
 
-Conforming being defined as either speeding up or slowing down the duration to match the desired output framerate. This is generally how films and TV shows are converted between standards.
+Conforming is either speeding up or slowing down the duration to match the desired output framerate. This is generally how films and TV shows are converted between standards.
 
 The alternative is repeating or dropping frames to change the frame rate, and that's bad.
 
@@ -46,8 +42,10 @@ Part of [`mplayer-tools`](http://mplayer-tools.sourceforge.net/). I couldn't eve
 
 ## Running
 
-Put this script and its files in the same folder as the MKVs you want to convert. Then run it with the desired FPS. It will not overwite your originals. Valid framerates are 23.976, 24, and 25.
+Provide the folder where your MKV videos to be converted are followed by the framerate to conform to. Valid framerates are 23.976, 24, and 25.
+
+It should not overwrite your originals, however it may be safest to make a copy!
 
 ```
-bash fps_conform.sh 23.976
+bash fps_conform.sh [folder] [framerate]
 ```
