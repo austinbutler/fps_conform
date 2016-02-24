@@ -71,16 +71,25 @@ function CONVERT_SUB () {
   #Get subtitle language
   SUBTITLE_LANG=$(ffprobe -v error -of default=noprint_wrappers=1:nokey=1 -select_streams s:0 -show_entries stream_tags=language "$1")
 
-  #Extract subtitle file
-  ffmpeg -y -v error -i "$1" -map 0:s:0 "$OUTPUT_SUB/${OUTPUT_FILE}_original.srt"
+  #Extract subtitle file if necessary, perform FPS change
+  if [[ ! -s "$SUBTITLE_EXT" ]]; then
+    echo "$MSG_NOTICE Using embedded subtitles"
+    ffmpeg -y -v error -i "$1" -map 0:s:0 "$OUTPUT_SUB/${OUTPUT_FILE}_original.srt"
+    perl "$DIR/srt/srtshift.pl" "${FPS_IN}-${FPS}" "${OUTPUT_SUB}/${OUTPUT_FILE}_original.srt" "${OUTPUT_SUB}/$OUTPUT_FILE" > "$DIR"/temp/perl.log 2>&1
+  else
+    echo "$MSG_NOTICE Using external subtitles"
+    perl "$DIR/srt/srtshift.pl" "${FPS_IN}-${FPS}" "$SUBTITLE_EXT" "${OUTPUT_SUB}/${OUTPUT_FILE}" > "$DIR"/temp/perl.log 2>&1
+  fi
 
-  #Adjust FPS
-  perl "$DIR/srt/srtshift.pl" "${FPS_IN}-${FPS}" "${OUTPUT_SUB}/${OUTPUT_FILE}_original.srt" "${OUTPUT_SUB}/$OUTPUT_FILE" > "$DIR"/temp/perl.log 2>&1
 }
 
 function MUX () {
-  if [[ "$SUBTITLE_TYPE" == "srt" ]]; then
-    ffmpeg -y -v error -i "$OUTPUT_VID/$OUTPUT_FILE" -i "$OUTPUT_AUD/$OUTPUT_FILE" -i "$OUTPUT_SUB/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 -map 2:s:0 -metadata:s:2 language=eng "$CONVERTED/$OUTPUT_FILE"
+  if [[ "$SUBTITLE_TYPE" == "srt" && ! -z "$SUBTITLE_LANG" ]]; then
+    ffmpeg -y -v error -i "$OUTPUT_VID/$OUTPUT_FILE" -i "$OUTPUT_AUD/$OUTPUT_FILE" -i "$OUTPUT_SUB/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 -map 2:s:0 -metadata:s:2 language="$SUBTITLE_LANG" "$CONVERTED/$OUTPUT_FILE"
+  elif [[ "$SUBTITLE_TYPE" == "srt" ]]; then
+    ffmpeg -y -v error -i "$OUTPUT_VID/$OUTPUT_FILE" -i "$OUTPUT_AUD/$OUTPUT_FILE" -i "$OUTPUT_SUB/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 -map 2:s:0 "$CONVERTED/$OUTPUT_FILE"
+  elif [[ -s "$SUBTITLE_EXT" ]]; then
+    ffmpeg -y -v error -i "$OUTPUT_VID/$OUTPUT_FILE" -i "$OUTPUT_AUD/$OUTPUT_FILE" -i "$OUTPUT_SUB/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 -map 2:s:0 "$CONVERTED/$OUTPUT_FILE"
   else
     ffmpeg -y -v error -i "$OUTPUT_VID/$OUTPUT_FILE" -i "$OUTPUT_AUD/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 "$CONVERTED/$OUTPUT_FILE"
   fi
@@ -96,8 +105,13 @@ for INPUT_FILE in "$FOLDER"/*.mkv; do
   #Get framerate of input file to make calculate conversion
   FPS_IN=$(ffprobe -v error -of default=noprint_wrappers=1:nokey=1 -select_streams v:0 -show_entries stream=r_frame_rate "$INPUT_FILE")
 
-  #Check if there are subtitles and if so what type
+  #Check if there are subtitles embedded and if so what type
   SUBTITLE_TYPE=$(ffprobe -v error -of default=noprint_wrappers=1:nokey=1 -select_streams s:0 -show_entries stream=codec_name "$INPUT_FILE")
+
+  #Check for external subtitles if there are none embedded
+  if [[ -z "$SUBTITLE_TYPE" ]]; then
+    SUBTITLE_EXT=$(printf '%s' "$(dirname "$INPUT_FILE")" && printf '/' && printf '%s' "$(basename "$INPUT_FILE" .mkv)" && printf .srt)
+  fi
 
   #Error for same input and output FPS
   ERR_NO_ACTION="$MSG_NOTICE Taking no action, FPS would be unchanged or is unsupported"
@@ -152,7 +166,7 @@ for INPUT_FILE in "$FOLDER"/*.mkv; do
   if [[ "$PASS" != "true" ]]; then
     CONVERT_VID "$INPUT_FILE"
     CONVERT_AUD "$INPUT_FILE"
-    if [[ "$SUBTITLE_TYPE" == "srt" ]]; then
+    if [[ "$SUBTITLE_TYPE" == "srt" || -s "$SUBTITLE_EXT" ]]; then
       CONVERT_SUB "$INPUT_FILE"
     else
       echo "$MSG_NOTICE No SRT subtitles found"
