@@ -84,6 +84,7 @@ function CONVERT_SUB () {
 }
 
 function MUX () {
+  echo "$MSG_NOTICE Starting muxing"
   if [[ "$SUBTITLE_TYPE" == "srt" && ! -z "$SUBTITLE_LANG" ]]; then
     ffmpeg -y -v error -i "$OUTPUT_VID/$OUTPUT_FILE" -i "$OUTPUT_AUD/$OUTPUT_FILE" -i "$OUTPUT_SUB/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 -map 2:s:0 -metadata:s:2 language="$SUBTITLE_LANG" "$CONVERTED/$OUTPUT_FILE"
   elif [[ "$SUBTITLE_TYPE" == "srt" ]]; then
