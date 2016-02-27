@@ -51,3 +51,5 @@ The first embedded subtitle will be used, otherwise if there's an SRT subtitle o
 ```
 bash fps_conform.sh [folder] [framerate]
 ```
+
+This will output the finished files in a `converted` folder in the same directory as the script.
