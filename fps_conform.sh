@@ -54,6 +54,9 @@ function CONVERT_VID () {
   # Get index of video track
   VID_INDEX=$(ffprobe -v error -of default=noprint_wrappers=1:nokey=1 -select_streams v:0 -show_entries stream=index "$1")
 
+  # Alternate for weird-ass files
+  # mkvmerge -q -o "$OUTPUT_VID/$OUTPUT_FILE" --sync "0:0,25/24" -d "$VID_INDEX" -A -S -T "$1"
+
   mkvmerge -q -o "$OUTPUT_VID/$OUTPUT_FILE" --default-duration "$VID_INDEX:$FPS_OUT" -d "$VID_INDEX" -A -S -T "$1"
 }
 
