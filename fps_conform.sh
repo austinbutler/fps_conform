@@ -63,8 +63,20 @@ function CONVERT_VID () {
 # Convert audio to desired length, compensating pitch
 function CONVERT_AUD () {
   echo "$MSG_NOTICE Starting audio conversion"
+  local channels
+  local layout
 
-  ffmpeg -y -v error -i "$1" -c:a libopus -b:a 128k -filter:a "atempo=$TEMPO" -vn "$OUTPUT_AUD/$OUTPUT_FILE"
+  channels=$(ffprobe -show_entries stream=channels -select_streams a:0 -of compact=p=0:nk=1 -v 0 "$1")
+
+  if [[ "$channels" == "8" ]]; then
+    layout="7.1"
+  elif [[ "$channels" == "6" ]]; then
+    layout="5.1"
+  else
+    layout="stereo"
+  fi
+
+  ffmpeg -y -v error -i "$1" -c:a libopus -b:a 128k -filter:a "atempo=$TEMPO,aformat=channel_layouts=$layout" -vn "$OUTPUT_AUD/$OUTPUT_FILE"
 }
 
 # Convert subtitles to desired length

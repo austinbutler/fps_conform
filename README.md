@@ -1,6 +1,6 @@
 # FPS Conform
 
-:warning: Works for me but not tested much! I've used this only on stereo MKV files so far. And only on Arch Linux.
+:warning: Works for me but not tested much! I've used this on Arch Linux with files that have stereo and 5.1 audio.
 
 Bash script to conform between NTSC and PAL.
 
@@ -44,7 +44,7 @@ Part of [`mplayer-tools`](http://mplayer-tools.sourceforge.net/). I couldn't eve
 
 Provide the folder where your MKV videos to be converted are followed by the framerate to conform to. Valid framerates are 23.976, 24, and 25.
 
-It *should* not overwrite your originals, however it may be safest to _make a copy_!
+It *should* not overwrite your originals, however it may be safest to _make a backup copy_!
 
 The first embedded subtitle will be used, otherwise if there's an SRT subtitle of the same name next to the video file it will use that.
 
