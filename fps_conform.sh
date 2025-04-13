@@ -190,8 +190,8 @@ for INPUT_FILE in "$FOLDER"/*.mkv; do
     MUX "$INPUT_FILE"
 
     # Delete intermediary files to save space
-    rm -f "$OUTPUT_VID/$INPUT_FILE"
-    rm -f "$OUTPUT_AUD/$INPUT_FILE"
+    rm -f "$OUTPUT_VID/$OUTPUT_FILE"
+    rm -f "$OUTPUT_AUD/$OUTPUT_FILE"
   fi
 done
 
