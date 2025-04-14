@@ -133,6 +133,15 @@
         packages.default = pkgs.writeShellApplication {
           name = "fps-conform";
           runtimeInputs = with pkgs; [
+            (stdenv.mkDerivation {
+              name = "srtshift";
+              src = ./srt;
+              buildPhase = "";
+              installPhase = ''
+                mkdir -p $out/bin
+                cp srtshift.pl $out/bin/srtshift
+              '';
+            })
             ffmpeg
             perl
           ];

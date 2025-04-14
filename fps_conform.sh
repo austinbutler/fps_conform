@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Current directory script is being executed from
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 USAGE="USAGE: ./fps_conform.sh [folder] [framerate]\n  [folder] = location of video files to be converted\n  [framerate] = framerate to conform to (23.976, 24, 25)"
 
 if (($# == 0)); then
@@ -15,6 +12,12 @@ FOLDER="$1"
 
 # FPS parameter
 FPS="$2"
+
+if command -v srtshift; then
+	SRTSHIFT="srtshift"
+else
+	SRTSHIFT="./srt/srtshift.pl"
+fi
 
 # Checking for valid first parameter
 if [[ ! -d $FOLDER ]]; then
@@ -92,10 +95,10 @@ function CONVERT_SUB() {
 	if [[ ! -s $SUBTITLE_EXT ]]; then
 		echo "$MSG_NOTICE Using embedded subtitles"
 		ffmpeg -y -v error -i "$1" -map 0:s:0 "$SUB_TMP/${OUTPUT_FILE}_original.srt"
-		perl "$DIR/srt/srtshift.pl" "${FPS_IN}-${FPS}" "${SUB_TMP}/${OUTPUT_FILE}_original.srt" "${SUB_TMP}/$OUTPUT_FILE" >"$SUB_TMP"/perl.log 2>&1
+		"$SRTSHIFT" "${FPS_IN}-${FPS}" "${SUB_TMP}/${OUTPUT_FILE}_original.srt" "${SUB_TMP}/$OUTPUT_FILE" >"$SUB_TMP"/perl.log 2>&1
 	else
 		echo "$MSG_NOTICE Using external subtitles"
-		perl "$DIR/srt/srtshift.pl" "${FPS_IN}-${FPS}" "$SUBTITLE_EXT" "${SUB_TMP}/${OUTPUT_FILE}" >"$DIR"/temp/perl.log 2>&1
+		"$SRTSHIFT" "${FPS_IN}-${FPS}" "$SUBTITLE_EXT" "${SUB_TMP}/${OUTPUT_FILE}" >"$SUB_TMP"/perl.log 2>&1
 	fi
 
 }
@@ -129,6 +132,8 @@ for INPUT_FILE in "$FOLDER"/*.mkv; do
 	# Check for external subtitles if there are none embedded
 	if [[ -z $SUBTITLE_TYPE ]]; then
 		SUBTITLE_EXT=$(printf '%s' "$(dirname "$INPUT_FILE")" && printf '/' && printf '%s' "$(basename "$INPUT_FILE" .mkv)" && printf .srt)
+	else
+		SUBTITLE_EXT=""
 	fi
 
 	# Error for same input and output FPS

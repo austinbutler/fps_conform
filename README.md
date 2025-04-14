@@ -61,7 +61,7 @@ This is nice because you don't need to worry about installing any requirements.
 You can also just clone this repo and run the script directly if you have
 all the necessary requirements installed (see below).
 
-```
+```shell
 ./fps_conform.sh [folder] [frame rate]
 ```
 
