@@ -115,7 +115,6 @@
             ffmpeg
             git
             gnused
-            hadolint
             just
             mkvtoolnix-cli
             nixfmt-rfc-style
