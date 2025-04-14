@@ -141,6 +141,7 @@
               '';
             })
             ffmpeg
+            mkvtoolnix-cli
             perl
           ];
           text = builtins.readFile ./fps_conform.sh;
