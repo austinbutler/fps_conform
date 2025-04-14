@@ -8,6 +8,5 @@ result-*
 # Pre-commit
 .pre-commit-config.yaml
 
-# Script outputs
-converted/
-temp/
+# Script output
+conformed/

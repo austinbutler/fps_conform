@@ -42,7 +42,7 @@ backup copy_!
 The first embedded subtitle will be used, otherwise if there's an SRT subtitle
 of the same name next to the video file it will use that.
 
-It will output the finished files in a `converted` folder in the current
+It will output the finished files in a `conformed` folder in the current
 working directory.
 
 ### Nix

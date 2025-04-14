@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-USAGE="USAGE: ./fps_conform.sh [folder] [framerate]\n  [folder] = location of video files to be converted\n  [framerate] = framerate to conform to (23.976, 24, 25)"
+USAGE="USAGE: ./fps_conform.sh [folder] [framerate]\n  [folder] = location of video files to be conformed\n  [framerate] = framerate to conform to (23.976, 24, 25)"
 
 if (($# == 0)); then
 	echo -e "$USAGE"
@@ -46,8 +46,8 @@ mkdir -p "$AUD_TMP"
 mkdir -p "$SUB_TMP"
 
 # Folder for finished conversion
-CONVERTED_DIR="$PWD/converted"
-mkdir -p "$CONVERTED_DIR"
+CONFORMED_DIR="$PWD/conformed"
+mkdir -p "$CONFORMED_DIR"
 
 MSG_ERROR=" ➥ [ERROR ]"
 MSG_NOTICE=" ➥ [NOTICE]"
@@ -106,13 +106,13 @@ function CONVERT_SUB() {
 function MUX() {
 	echo "$MSG_NOTICE Starting muxing"
 	if [[ $SUBTITLE_TYPE == "srt" || $SUBTITLE_TYPE == "subrip" && -n $SUBTITLE_LANG ]]; then
-		ffmpeg -y -v error -i "$VID_TMP/$OUTPUT_FILE" -i "$AUD_TMP/$OUTPUT_FILE" -i "$SUB_TMP/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 -map 2:s:0 -metadata:s:2 language="$SUBTITLE_LANG" "$CONVERTED_DIR/$OUTPUT_FILE"
+		ffmpeg -y -v error -i "$VID_TMP/$OUTPUT_FILE" -i "$AUD_TMP/$OUTPUT_FILE" -i "$SUB_TMP/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 -map 2:s:0 -metadata:s:2 language="$SUBTITLE_LANG" "$CONFORMED_DIR/$OUTPUT_FILE"
 	elif [[ $SUBTITLE_TYPE == "srt" || $SUBTITLE_TYPE == "subrip" ]]; then
-		ffmpeg -y -v error -i "$VID_TMP/$OUTPUT_FILE" -i "$AUD_TMP/$OUTPUT_FILE" -i "$SUB_TMP/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 -map 2:s:0 "$CONVERTED_DIR/$OUTPUT_FILE"
+		ffmpeg -y -v error -i "$VID_TMP/$OUTPUT_FILE" -i "$AUD_TMP/$OUTPUT_FILE" -i "$SUB_TMP/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 -map 2:s:0 "$CONFORMED_DIR/$OUTPUT_FILE"
 	elif [[ -s $SUBTITLE_EXT ]]; then
-		ffmpeg -y -v error -i "$VID_TMP/$OUTPUT_FILE" -i "$AUD_TMP/$OUTPUT_FILE" -i "$SUB_TMP/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 -map 2:s:0 "$CONVERTED_DIR/$OUTPUT_FILE"
+		ffmpeg -y -v error -i "$VID_TMP/$OUTPUT_FILE" -i "$AUD_TMP/$OUTPUT_FILE" -i "$SUB_TMP/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 -map 2:s:0 "$CONFORMED_DIR/$OUTPUT_FILE"
 	else
-		ffmpeg -y -v error -i "$VID_TMP/$OUTPUT_FILE" -i "$AUD_TMP/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 "$CONVERTED_DIR/$OUTPUT_FILE"
+		ffmpeg -y -v error -i "$VID_TMP/$OUTPUT_FILE" -i "$AUD_TMP/$OUTPUT_FILE" -c copy -map 0:v:0 -map 1:a:0 "$CONFORMED_DIR/$OUTPUT_FILE"
 	fi
 }
 
@@ -121,7 +121,8 @@ for INPUT_FILE in "$FOLDER"/*.mkv; do
 	echo "FILE: $INPUT_FILE"
 
 	# Get basename of file
-	OUTPUT_FILE=$(basename "$INPUT_FILE")
+	INTPUT_WITHOUT_PATH="${INPUT_FILE##*/}"
+	OUTPUT_FILE="${INTPUT_WITHOUT_PATH%.mkv}-conformed.mkv"
 
 	# Get framerate of input file to make calculate conversion
 	FPS_IN=$(ffprobe -v error -of default=noprint_wrappers=1:nokey=1 -select_streams v:0 -show_entries stream=r_frame_rate "$INPUT_FILE")
@@ -205,4 +206,4 @@ done
 # Clean up
 rm -r "$TMP_DIR"
 
-echo "Successfully conformed! Files written to $CONVERTED_DIR"
+echo "Successfully conformed! Files written to $CONFORMED_DIR"
