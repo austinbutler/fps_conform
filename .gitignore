@@ -1,0 +1,13 @@
+# Direnv
+.direnv/
+
+# Nix
+result
+result-*
+
+# Pre-commit
+.pre-commit-config.yaml
+
+# Script outputs
+converted/
+temp/
