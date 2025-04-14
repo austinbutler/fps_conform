@@ -114,7 +114,6 @@
           buildInputs = with pkgs; [
             ffmpeg
             git
-            gnused
             just
             mkvtoolnix-cli
             nixfmt-rfc-style
